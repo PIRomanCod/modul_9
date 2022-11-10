@@ -21,29 +21,31 @@ def input_error(func):
             result = func(*args, **kwargs)
             return result
         except (TypeError):
-            print("The command don't need args")
+            return "The command don't need args"
         except (IndexError):
-            print("The command need 2 args: name phone")
+            return "The command need 2 args: name phone"
         except (KeyError):
-            print("The command is unknown")
+            return "The command is unknown"
     return inner
 
 
 def parser(user_input):
     parsed_input = user_input.lower().strip().split()
-    handler(parsed_input)
+    return handler(parsed_input)
 
 
 @input_error
 def handler(parsed_input):
-    if parsed_input[0] in commands_dict.keys():
-        commands_dict.get(parsed_input[0])((" ").join(parsed_input[1:]))
+    if parsed_input[0] in commands_dict:
+        action = commands_dict.get(parsed_input[0])(
+            (" ").join(parsed_input[1:]))
     else:
         raise KeyError
+    return action
 
 
 def hello():
-    print("How can I help you?")
+    return "How can I help you?"
 
 
 def add(string):
@@ -52,23 +54,28 @@ def add(string):
         raise IndexError
     else:
         users.update({new_elem[0]: new_elem[1]})
+    return f"You added contact {new_elem[0]} with number {new_elem[1]}"
 
 
 def change(string):
     new_elem = string.split()
-    users.update({new_elem[0]: new_elem[1]})
+    if new_elem[0].isdigit():
+        raise IndexError
+    else:
+        users.update({new_elem[0]: new_elem[1]})
+    return f"You changed {new_elem[1]} for {new_elem[0]}"
 
 
 def phone(string):
-    print(users[string])
+    return users[string]
 
 
 def show_all():
-    print(users)
+    return users
 
 
 def exit():
-    print("Good bye!")
+    return "Good bye!"
 
 
 the_end = False
@@ -89,18 +96,18 @@ commands_list = ["hello", "add ...", "change ...",
 def main():
     print(
         f"Welcome, please enter one of the commands: {commands_list}")
-    while the_end == False:
+    while not the_end:
         user_input = input("Enter please: ").lower()
         if user_input == "hello":
-            commands_dict.get("hello")()
+            print(commands_dict.get("hello")())
             continue
         elif user_input in ["good bye", "close", "exit"]:
-            commands_dict.get("exit")()
-            return the_end == True
+            print(commands_dict.get("exit")())
+            break
         if user_input == "show all":
-            commands_dict.get("show all")()
+            print(commands_dict.get("show all")())
         else:
-            parser(user_input)
+            print(parser(user_input))
 
 
 if __name__ == '__main__':
